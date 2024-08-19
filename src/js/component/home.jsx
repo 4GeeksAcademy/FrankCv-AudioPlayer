@@ -1,25 +1,55 @@
-import React from "react";
+import React, { useRef, useState, useEffect } from "react";
+import MediaPlayer from "./MediaPlayer";
+import PlayerFooter from "./playerFooter";
 
-//include images into your bundle
-import rigoImage from "../../img/rigo-baby.jpg";
-
-//create your first component
 const Home = () => {
+	const [songList, setSongList] = useState([]);
+	const [isPlayPause, setIsPlayPause] = useState(false);
+	const [actualSong,setActualSong] = useState(``);
+	const audioElement = useRef();
+	useEffect(() => {
+		getAllSongs()
+	}, [])
+	const isPlayPauseHandler= ()=>{
+		setIsPlayPause(!isPlayPause);
+	}
+	function getAllSongs() {
+		const URL = 'https://playground.4geeks.com/sound/all';
+		fetch(
+			URL, { method: "GET" }
+		)
+			.then((response) => {
+				if (response.status === 200) {
+					return response.json()
+				}
+			})
+			.then((data) => {
+				setSongList(data.songs);
+			})
+			.catch((error) => console.log(error))
+	}
+	function onBackwardHandler() {
+		console.log(backward.current)
+	}
+	function songFocusHandler() {
+		actualSong.current.focus();
+	}
+	function onPlayHandler() {
+		
+		
+	}
+	function onForwardHandler() {
+		console.log(forward.current)
+	}
+	function songHandler(id) {
+
+	}
 	return (
-		<div className="text-center">
-			<h1 className="text-center mt-5">Hello Rigo!</h1>
-			<p>
-				<img src={rigoImage} />
-			</p>
-			<a href="#" className="btn btn-success">
-				If you see this green button... bootstrap is working...
-			</a>
-			<p>
-				Made by{" "}
-				<a href="http://www.4geeksacademy.com">4Geeks Academy</a>, with
-				love!
-			</p>
+		<div className="container d-flex flex-column w-25 border p-0 align-items-center">
+			<MediaPlayer songList={songList} setActualSong = {setActualSong} />
+			<PlayerFooter audioElement={audioElement}actualSong={actualSong} isPlayPause={isPlayPause} isPlayPauseHandler={isPlayPauseHandler}/>
 		</div>
+
 	);
 };
 
