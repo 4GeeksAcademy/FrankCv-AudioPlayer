@@ -1,15 +1,18 @@
 import React from "react";
 
 const List = (props) => {
+
     return (
-        <a className="list-group-item list-group-item-action ps-0" id={props.id}>
-            <div className="container d-flex align-items-center p-0">
-                <div className="d-flex justify-content-end me-3 ms-1 ps-0" style={{ minWidth: "20px" }}>
-                    {props.order}
+        <div className="container px-0" id={props.id} onClick={props.onClickHandler}>
+            <a className="list-group-item list-group-item-action ps-0" >
+                <div className="container d-flex align-items-center p-0" >
+                    <div className="d-flex justify-content-end me-3 ms-1 ps-0" style={{ minWidth: "20px" }} >
+                        {props.order}
+                    </div>
+                    {props.song}
                 </div>
-                {props.song}
-            </div>
-        </a>
+            </a>
+        </div>
     )
 }
 export default List;  
