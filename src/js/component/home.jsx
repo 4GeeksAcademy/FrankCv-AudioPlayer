@@ -5,18 +5,15 @@ import PlayerFooter from "./playerFooter";
 const Home = () => {
 	const [songList, setSongList] = useState([]);
 	const [isPlayPause, setIsPlayPause] = useState(false);
-	const [actualSong, setActualSong] = useState(``);
+	const [actualSong, setActualSong] = useState(["/sound/files/mario/songs/castle.mp3", 1]);
+	const [index, setIndex] = useState(0);
 	const audioElement = useRef(null);
 	useEffect(() => {
 		getAllSongs()
-	}, [])
-	const isPlayPauseHandler = () => {
-		setIsPlayPause(!isPlayPause);
-		if (isPlayPause)
-			audioElement.play()
-		else { audioElement.pause() }
 
-	}
+		setIndex()
+	}, [audioElement])
+
 	function getAllSongs() {
 		const URL = 'https://playground.4geeks.com/sound/all';
 		fetch(
@@ -32,27 +29,47 @@ const Home = () => {
 			})
 			.catch((error) => console.log(error))
 	}
-	function onBackwardHandler() {
-
-	}
-	function songFocusHandler() {
-		actualSong.current.focus();
-	}
-	function onPlayHandler() {
-
-
-	}
-	function onForwardHandler() {
-
-	}
 	function setActualSongHandler(id) {
-		const [{ 'url': url }] = [...songList.filter((e) => parseInt(e.id) === parseInt(id))]
-		return url
+		const [{ 'url': url, 'id': songid }] = [...songList.filter((e) => parseInt(e.id) === parseInt(id))]
+		const arr = [url, songid]
+		console.log(arr)
+		return arr
 	}
 	function onClickHandler(e) {
+		setIsPlayPause(true)
+		setIndex(songList.findIndex(e => parseInt(e.id) === parseInt(actualSong[1]) && e.url === actualSong[0]))
 		setActualSong(setActualSongHandler(e.currentTarget.id))
+		console.log(index)
+
+	}
+	const onBackwardHandler = () => {
+		console.log(index)
+		// audioElement.current.pause()
+		setIndex(prev => prev - 1)
+
+		console.log(audioElement.current.src)
+		// if (index === 0) {
+		// 	setIndex(songList.length - 1)
+		// 	setActualSong(songList[index].url, songList[index].id)
+		// } else {
+		// 	setActualSong(songList[index].url, songList[index].id)
+		// }
+
+		// audioElement.current.play()
+	}
+	const onForwardHandler = () => {
+		audioElement.current.pause()
+		console.log(songList)
 		console.log(actualSong)
-		console.log("https://playground.4geeks.com" + actualSong)
+		console.log(index)
+		if (index === (songList.length - 1)) {
+			index = 0
+			setActualSong([songList[index], songList[index].id])
+			audioElement.current.src
+		} else {
+			setActualSong(songList[index + 1], songList[index].id)
+		}
+		audioElement.current.play()
 	}
 	return (
 		<div className="container d-flex flex-column w-25 border p-0 align-items-center">
@@ -63,7 +80,7 @@ const Home = () => {
 					}
 				</div>
 			</div>
-			<PlayerFooter audioElement={audioElement} actualSong={actualSong} isPlayPause={isPlayPause} isPlayPauseHandler={isPlayPauseHandler} url={"https://playground.4geeks.com" + actualSong} />
+			<PlayerFooter url={`https://playground.4geeks.com${actualSong[0]}`} audioElement={audioElement} onBackwardHandler={() => onBackwardHandler()} onForwardHandler={() => onForwardHandler()} songList={songList} isPlayPause={isPlayPause} setIsPlayPause={setIsPlayPause} actualSong={actualSong[0]} />
 		</div>
 
 	);
