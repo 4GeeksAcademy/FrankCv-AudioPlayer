@@ -3,84 +3,72 @@ import List from "./List.jsx";
 import PlayerFooter from "./playerFooter";
 
 const Home = () => {
+
 	const [songList, setSongList] = useState([]);
 	const [isPlayPause, setIsPlayPause] = useState(false);
-	const [actualSong, setActualSong] = useState(["/sound/files/mario/songs/castle.mp3", 1]);
-	const [index, setIndex] = useState(0);
+	const [actualSong, setActualSong] = useState('');
 	const audioElement = useRef(null);
+	const ran = Math.floor(Math.random() * (songList.length - 1))
 	useEffect(() => {
 		getAllSongs()
-
-		setIndex()
+		console.log(songList)
 	}, [audioElement])
 
-	function getAllSongs() {
-		const URL = 'https://playground.4geeks.com/sound/all';
-		fetch(
-			URL, { method: "GET" }
-		)
-			.then((response) => {
-				if (response.status === 200) {
-					return response.json()
-				}
-			})
-			.then((data) => {
-				setSongList(data.songs);
-			})
-			.catch((error) => console.log(error))
-	}
-	function setActualSongHandler(id) {
-		const [{ 'url': url, 'id': songid }] = [...songList.filter((e) => parseInt(e.id) === parseInt(id))]
-		const arr = [url, songid]
-		console.log(arr)
-		return arr
-	}
-	function onClickHandler(e) {
-		setIsPlayPause(true)
-		setIndex(songList.findIndex(e => parseInt(e.id) === parseInt(actualSong[1]) && e.url === actualSong[0]))
-		setActualSong(setActualSongHandler(e.currentTarget.id))
-		console.log(index)
+	const getAllSongs = async () => {
+		try {
+			const response = await fetch('https://playground.4geeks.com/sound/all')
+			if (response.status === 200) {
+				const data = await response.json()
+				setSongList(await data.songs)
+			}
+		} catch {
+			console.error(error)
+		}
 
+	}
+	function onClickHandler(song) {
+		setIsPlayPause(true)
+		setActualSong(song)
+		console.log(song)
+	}
+
+	const getSongIndex = () => {
+		// const obj = songList.filter(e => e.id === actualSong.id)
+		return songList.indexOf(actualSong)
 	}
 	const onBackwardHandler = () => {
-		console.log(index)
-		// audioElement.current.pause()
-		setIndex(prev => prev - 1)
-
-		console.log(audioElement.current.src)
-		// if (index === 0) {
-		// 	setIndex(songList.length - 1)
-		// 	setActualSong(songList[index].url, songList[index].id)
-		// } else {
-		// 	setActualSong(songList[index].url, songList[index].id)
-		// }
-
-		// audioElement.current.play()
+		setActualSong(songList[getSongIndex() - 1])
 	}
 	const onForwardHandler = () => {
-		audioElement.current.pause()
-		console.log(songList)
-		console.log(actualSong)
-		console.log(index)
-		if (index === (songList.length - 1)) {
-			index = 0
-			setActualSong([songList[index], songList[index].id])
-			audioElement.current.src
-		} else {
-			setActualSong(songList[index + 1], songList[index].id)
-		}
-		audioElement.current.play()
+		setActualSong(songList[getSongIndex() + 1])
+	}
+	const isPlayPauseHandler = () => {
+		setIsPlayPause(prevState => !prevState);
+		if (isPlayPause)
+			audioElement.current.pause()
+		else { audioElement.current.play() }
+		console.log(audioElement.current.src)
 	}
 	return (
-		<div className="container d-flex flex-column w-25 border p-0 align-items-center">
-			<div className="container p-0">
+		<div className="container d-flex flex-column w-25 border p-0 align-items-center bg-dark">
+			<div className="container p-3">
 				<div className="list-group mx-0">
 					{
-						songList.map((song, index) => <List key={index} onClickHandler={(e) => onClickHandler(e)} song={song.name} order={index + 1} id={song.id} />)
+						songList.map((song, index) => <List
+							key={index}
+							onClickHandler={() => onClickHandler(songList[index])}
+							song={song.name} order={index + 1} />)
 					}
 				</div>
 			</div>
-			<PlayerFooter url={`https://playground.4geeks.com${actualSong[0]}`} audioElement={audioElement} onBackwardHandler={() => onBackwardHandler()} onForwardHandler={() => onForwardHandler()} songList={songList} isPlayPause={isPlayPause} setIsPlayPause={setIsPlayPause} actualSong={actualSong[0]} />
+			<audio ref={audioElement} src={actualSong && "https://playground.4geeks.com" + actualSong.url} autoPlay type="audio.mp3" />
+			<PlayerFooter
+				isPlayPauseHandler={() => isPlayPauseHandler()}
+				onBackwardHandler={() => onBackwardHandler()}
+				onForwardHandler={() => onForwardHandler()}
+				songList={songList}
+				isPlayPause={isPlayPause}
+				setIsPlayPause={setIsPlayPause} />
 		</div>
 
 	);
