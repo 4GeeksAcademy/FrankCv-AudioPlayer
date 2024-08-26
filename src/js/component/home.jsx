@@ -6,7 +6,7 @@ const Home = () => {
 
 	const [songList, setSongList] = useState([]);
 	const [isPlayPause, setIsPlayPause] = useState(false);
-	const [actualSong, setActualSong] = useState('');
+	const [actualSong, setActualSong] = useState({ id: 1, name: "Mario Castle", url: "/sound/files/mario/songs/castle.mp3", category: "category" });
 	const audioElement = useRef(null);
 	const ran = Math.floor(Math.random() * (songList.length - 1))
 	useEffect(() => {
@@ -37,10 +37,18 @@ const Home = () => {
 		return songList.indexOf(actualSong)
 	}
 	const onBackwardHandler = () => {
-		setActualSong(songList[getSongIndex() - 1])
+		if (getSongIndex() === 0) {
+			setActualSong(songList[songList.length - 1])
+		} else {
+			setActualSong(songList[getSongIndex() - 1])
+		}
 	}
 	const onForwardHandler = () => {
-		setActualSong(songList[getSongIndex() + 1])
+		if (getSongIndex() === songList.length - 1) {
+			setActualSong(songList[0])
+		} else {
+			setActualSong(songList[getSongIndex() + 1])
+		}
 	}
 	const isPlayPauseHandler = () => {
 		setIsPlayPause(prevState => !prevState);
@@ -60,6 +68,10 @@ const Home = () => {
 							song={song.name} order={index + 1} />)
 					}
 				</div>
+			</div>
+			<div className="container d-flex justify-content-center align-items-center">
+				<i className="fa-solid fa-music text-light pe-3"></i>
+				<h2 className="fw-bold text-light">{actualSong.name}</h2>
 			</div>
 			<audio ref={audioElement} src={actualSong && "https://playground.4geeks.com" + actualSong.url} autoPlay type="audio.mp3" />
 			<PlayerFooter
